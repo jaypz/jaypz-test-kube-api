@@ -1,0 +1,27 @@
+# permissions for end users to view deploymentwithjobrunners.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: deploymentwithjobrunner-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: jobrunner
+    app.kubernetes.io/part-of: jobrunner
+    app.kubernetes.io/managed-by: kustomize
+  name: deploymentwithjobrunner-viewer-role
+rules:
+- apiGroups:
+  - tasks.github.io
+  resources:
+  - deploymentwithjobrunners
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - tasks.github.io
+  resources:
+  - deploymentwithjobrunners/status
+  verbs:
+  - get

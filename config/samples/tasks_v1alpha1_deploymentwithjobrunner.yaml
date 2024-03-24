@@ -1,0 +1,12 @@
+apiVersion: tasks.github.io/v1alpha1
+kind: DeploymentWithJobRunner
+metadata:
+  labels:
+    app.kubernetes.io/name: deploymentwithjobrunner
+    app.kubernetes.io/instance: deploymentwithjobrunner-sample
+    app.kubernetes.io/part-of: jobrunner
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: jobrunner
+  name: deploymentwithjobrunner-sample
+spec:
+  # TODO(user): Add fields here

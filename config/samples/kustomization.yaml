@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- tasks_v1alpha1_deploymentwithjobrunner.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples
