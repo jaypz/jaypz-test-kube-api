@@ -20,6 +20,8 @@ import (
 	"context"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -57,7 +59,24 @@ func (r *DeploymentWithJobRunnerReconciler) Reconcile(ctx context.Context, req c
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	deployment := &deployWithJob.Spec.Deployment
+	deployment := &appsv1.Deployment{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      deployWithJob.Name,
+			Namespace: deployWithJob.Namespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: v1.ObjectMeta{
+					Name:      deployWithJob.Spec.Deployment.Metadata.Name,
+					Namespace: deployWithJob.Spec.Deployment.Metadata.Namespace,
+					Labels:    deployWithJob.Spec.Deployment.Metadata.Labels,
+				},
+				Spec: deployWithJob.Spec.Deployment.PodSpec,
+			},
+			Replicas: deployWithJob.Spec.Deployment.Replicas,
+			Selector: deployWithJob.Spec.Deployment.Selector,
+		},
+	}
 
 	if err := r.Create(ctx, deployment); err != nil {
 		logger.Error(err, "failed to apply Deployment")
@@ -69,7 +88,22 @@ func (r *DeploymentWithJobRunnerReconciler) Reconcile(ctx context.Context, req c
 		return reconcile.Result{Requeue: true}, nil
 	}
 
-	job := &deployWithJob.Spec.Job
+	job := &batchv1.Job{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      deployWithJob.Name,
+			Namespace: deployWithJob.Namespace,
+		},
+		Spec: batchv1.JobSpec{
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: v1.ObjectMeta{
+					Name:      deployWithJob.Spec.Deployment.Metadata.Name,
+					Namespace: deployWithJob.Spec.Deployment.Metadata.Namespace,
+					Labels:    deployWithJob.Spec.Deployment.Metadata.Labels,
+				},
+				Spec: deployWithJob.Spec.Job.PodSpec,
+			},
+		},
+	}
 
 	if err := r.Create(ctx, job); err != nil {
 		logger.Error(err, "Job failed to create")

@@ -18,9 +18,9 @@ package controller
 
 import (
 	"context"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -40,18 +40,63 @@ var _ = Describe("DeploymentWithJobRunner Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		deploymentwithjobrunner := &tasksv1alpha1.DeploymentWithJobRunner{}
+
+		deploymentwithjobrunner := &tasksv1alpha1.DeploymentWithJobRunner{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      resourceName,
+				Namespace: "default",
+			},
+		}
 
 		BeforeEach(func() {
 			By("creating the custom resource for the Kind DeploymentWithJobRunner")
 			err := k8sClient.Get(ctx, typeNamespacedName, deploymentwithjobrunner)
+			replicas := int32(1)
+
 			if err != nil && errors.IsNotFound(err) {
 				resource := &tasksv1alpha1.DeploymentWithJobRunner{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: tasksv1alpha1.DeploymentWithJobRunnerSpec{
+						Deployment: tasksv1alpha1.Deployment{
+							Replicas: &replicas,
+							Selector: &metav1.LabelSelector{
+								MatchLabels: map[string]string{
+									"app": resourceName,
+								},
+							},
+							Metadata: tasksv1alpha1.Metadata{
+								Labels: map[string]string{
+									"app": resourceName,
+								},
+								Namespace: "default",
+								Name:      resourceName,
+							},
+							PodSpec: v1.PodSpec{
+								Containers: []v1.Container{
+									{
+										Name:  "my-container",
+										Image: "nginx",
+									},
+								},
+							},
+						},
+						Job: tasksv1alpha1.Job{
+							Metadata: tasksv1alpha1.Metadata{Name: "hello-world-pod", Namespace: "default"},
+							PodSpec: v1.PodSpec{
+								Containers: []v1.Container{
+									{
+										Name:    "hello-world",
+										Image:   "busybox",
+										Command: []string{"/bin/sh", "-c", "echo 'Hello, World!'"},
+									},
+								},
+								RestartPolicy: v1.RestartPolicyNever,
+							},
+						},
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}

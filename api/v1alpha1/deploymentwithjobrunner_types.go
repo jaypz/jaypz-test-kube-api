@@ -17,22 +17,36 @@ limitations under the License.
 package v1alpha1
 
 import (
-	appsv1 "k8s.io/api/apps/v1"
-	batchv1 "k8s.io/api/batch/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+type Job struct {
+	PodSpec  v1.PodSpec `json:"podspec"`
+	Metadata Metadata   `json:"metadata"`
+}
+
+type Deployment struct {
+	Selector *metav1.LabelSelector `json:"selector"`
+	Replicas *int32                `json:"replicas"`
+	PodSpec  v1.PodSpec            `json:"podspec"`
+	Metadata Metadata              `json:"metadata"`
+}
+
+type Metadata struct {
+	Labels    map[string]string `json:"labels,omitempty"`
+	Name      string            `json:"name"`
+	Namespace string            `json:"namespace"`
+}
 
 // DeploymentWithJobRunnerSpec defines the desired state of DeploymentWithJobRunner
 type DeploymentWithJobRunnerSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of DeploymentWithJobRunner. Edit deploymentwithjobrunner_types.go to remove/update
-	Deployment appsv1.Deployment `json:"deployment"`
-	Job        batchv1.Job       `json:"job"`
+	Deployment Deployment `json:"deployment"`
+	Job        Job        `json:"job"`
 }
 
 // DeploymentWithJobRunnerStatus defines the observed state of DeploymentWithJobRunner
