@@ -1,15 +1,32 @@
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  labels:
-    app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: manager-role
-    app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: jobrunner
-    app.kubernetes.io/part-of: jobrunner
-    app.kubernetes.io/managed-by: kustomize
   name: manager-role
 rules:
-- apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - tasks.github.io
+  resources:
+  - deploymentwithjobrunners
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - tasks.github.io
+  resources:
+  - deploymentwithjobrunners/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - tasks.github.io
+  resources:
+  - deploymentwithjobrunners/status
+  verbs:
+  - get
+  - patch
+  - update

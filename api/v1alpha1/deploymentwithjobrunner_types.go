@@ -17,6 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -29,7 +31,8 @@ type DeploymentWithJobRunnerSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of DeploymentWithJobRunner. Edit deploymentwithjobrunner_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Deployment appsv1.Deployment `json:"deployment"`
+	Job        batchv1.Job       `json:"job"`
 }
 
 // DeploymentWithJobRunnerStatus defines the observed state of DeploymentWithJobRunner
